@@ -10,9 +10,11 @@ pub fn build(b: *std.Build) void {
     // Server executable
     const server = b.addExecutable(.{
         .name = "grpc-server",
-        .root_source_file = .{ .path = "src/server.zig" },
-        .target = target,
-        .optimize = optimize,
+        .root_module = b.createModule(.{
+            .root_source_file = .{ .path = "src/server.zig" },
+            .target = target,
+            .optimize = optimize,
+        }),
     });
     server.addModule("spice", spice_mod);
     b.installArtifact(server);
@@ -57,7 +59,7 @@ pub fn build(b: *std.Build) void {
     b.installArtifact(server_example);
 
     const client_example = b.addExecutable(.{
-        .name = "grpc-client-example", 
+        .name = "grpc-client-example",
         .root_source_file = .{ .path = "examples/basic_client.zig" },
         .target = target,
         .optimize = optimize,
