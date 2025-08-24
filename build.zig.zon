@@ -3,7 +3,8 @@
     .version = "0.1.0",
     .dependencies = .{
         .spice = .{
-            .url = "https://github.com/judofyr/spice/archive/refs/heads/main.tar.gz",
+            .url = "https://github.com/einhornimmond/spice/archive/refs/tags/zig-v0.13.0-v0.0.0.tar.gz",
+            .hash = "122000a6a39fa23ea2fcf3fcf52e9ae90fafbb3405d0057022f67677658248f61bdb",
         },
     },
     .fingerprint = 0xbcaa61f2f1144ba4,

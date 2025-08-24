@@ -10,11 +10,9 @@ pub fn build(b: *std.Build) void {
     // Server executable
     const server = b.addExecutable(.{
         .name = "grpc-server",
-        .root_module = b.createModule(.{
-            .root_source_file = b.path("src/server.zig"),
-            .target = target,
-            .optimize = optimize,
-        }),
+        .root_source_file = b.path("src/server.zig"),
+        .target = target,
+        .optimize = optimize,
     });
     server.root_module.addImport("spice", spice_mod);
     b.installArtifact(server);
