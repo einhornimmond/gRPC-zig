@@ -1,5 +1,5 @@
 const std = @import("std");
-const GrpcServer = @import("../src/server.zig").GrpcServer;
+const GrpcServer = @import("grpc-server").GrpcServer;
 
 pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
@@ -14,7 +14,7 @@ pub fn main() !void {
         .name = "SayHello",
         .handler_fn = sayHello,
     });
-    
+
     // Register benchmark handler
     try server.handlers.append(.{
         .name = "Benchmark",

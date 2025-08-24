@@ -20,7 +20,7 @@ pub const Connection = struct {
     encoder: hpack.Encoder,
     decoder: hpack.Decoder,
 
-    const PREFACE = "PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n";
+    pub const PREFACE = "PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n";
 
     pub fn init(allocator: std.mem.Allocator) !Connection {
         return Connection{

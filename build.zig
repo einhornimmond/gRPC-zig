@@ -7,25 +7,23 @@ pub fn build(b: *std.Build) void {
     const spice_dep = b.dependency("spice", .{});
     const spice_mod = spice_dep.module("spice");
 
-    // Server executable
-    const server = b.addExecutable(.{
-        .name = "grpc-server",
+    // Server module
+    const server_module = b.addModule("grpc-server", .{
         .root_source_file = b.path("src/server.zig"),
         .target = target,
         .optimize = optimize,
     });
-    server.root_module.addImport("spice", spice_mod);
-    b.installArtifact(server);
+
+    server_module.addImport("spice", spice_mod);
+    // b.installArtifact(server_module);
 
     // Client executable
-    const client = b.addExecutable(.{
-        .name = "grpc-client",
+    const client_module = b.addModule("grpc-client", .{
         .root_source_file = b.path("src/client.zig"),
         .target = target,
         .optimize = optimize,
     });
-    client.root_module.addImport("spice", spice_mod);
-    b.installArtifact(client);
+    client_module.addImport("spice", spice_mod);
 
     // Benchmark executable
     const benchmark = b.addExecutable(.{
@@ -53,7 +51,7 @@ pub fn build(b: *std.Build) void {
         .target = target,
         .optimize = optimize,
     });
-    server_example.root_module.addImport("spice", spice_mod);
+    server_example.root_module.addImport("grpc-server", server_module);
     b.installArtifact(server_example);
 
     const client_example = b.addExecutable(.{
@@ -62,7 +60,7 @@ pub fn build(b: *std.Build) void {
         .target = target,
         .optimize = optimize,
     });
-    client_example.root_module.addImport("spice", spice_mod);
+    client_example.root_module.addImport("grpc-client", client_module);
     b.installArtifact(client_example);
 
     // Tests
@@ -71,7 +69,8 @@ pub fn build(b: *std.Build) void {
         .target = target,
         .optimize = optimize,
     });
-    tests.root_module.addImport("spice", spice_mod);
+    tests.root_module.addImport("grpc-server", server_module);
+    tests.root_module.addImport("grpc-client", client_module);
     const run_tests = b.addRunArtifact(tests);
     const test_step = b.step("test", "Run tests");
     test_step.dependOn(&run_tests.step);

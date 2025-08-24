@@ -1,4 +1,5 @@
 const std = @import("std");
+const big = std.builtin.Endian.big;
 
 pub const FrameType = enum(u8) {
     DATA = 0x0,
@@ -41,24 +42,35 @@ pub const Frame = struct {
         allocator.free(self.payload);
     }
 
+    fn getLengthAsBigEndianString(self: Frame) []const u8 {
+        const bigEndian = std.mem.nativeToBig(u24, self.length);
+        const buffer: [3]u8 = .{
+            @as(u8, @intCast((bigEndian >> 16) & 0xFF)),
+            @as(u8, @intCast((bigEndian >> 8) & 0xFF)),
+            @as(u8, @intCast(bigEndian & 0xFF)),
+        };
+        return buffer[0..];
+    }
+
     pub fn encode(self: Frame, writer: anytype) !void {
-        try writer.writeIntBig(u24, self.length);
-        try writer.writeIntBig(u8, @intFromEnum(self.type));
-        try writer.writeIntBig(u8, self.flags);
-        try writer.writeIntBig(u32, self.stream_id);
+        try writer.writeInt(u24, self.length, big);
+        try writer.writeInt(u8, @intFromEnum(self.type), big);
+        try writer.writeInt(u8, self.flags, big);
+        try writer.writeInt(u32, self.stream_id, big);
         try writer.writeAll(self.payload);
     }
 
     pub fn decode(reader: anytype, allocator: std.mem.Allocator) !Frame {
         var frame = try Frame.init(allocator);
-        frame.length = try reader.readIntBig(u24);
-        frame.type = @enumFromInt(try reader.readIntBig(u8));
-        frame.flags = try reader.readIntBig(u8);
-        frame.stream_id = @intCast(try reader.readIntBig(u32));
-        
-        frame.payload = try allocator.alloc(u8, frame.length);
-        _ = try reader.readAll(frame.payload);
-        
+        frame.length = try reader.readInt(u24, big);
+        frame.type = @enumFromInt(try reader.readInt(u8, big));
+        frame.flags = try reader.readInt(u8, big);
+        frame.stream_id = @intCast(try reader.readInt(u32, big));
+
+        const payloadBuffer = try allocator.alloc(u8, frame.length);
+        _ = try reader.readAll(payloadBuffer);
+        frame.payload = payloadBuffer;
+
         return frame;
     }
 };

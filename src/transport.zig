@@ -66,7 +66,7 @@ pub const Transport = struct {
 
     pub fn readMessage(self: *Transport) ![]const u8 {
         var frame_reader = std.io.bufferedReader(self.stream.reader());
-        const frame = try http2.frame.Frame.decode(frame_reader.reader(), self.allocator);
+        var frame = try http2.frame.Frame.decode(frame_reader.reader(), self.allocator);
         defer frame.deinit(self.allocator);
 
         if (frame.type == .DATA) {

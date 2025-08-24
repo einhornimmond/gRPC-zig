@@ -72,3 +72,8 @@ pub const GrpcClient = struct {
         return self.compression.decompress(response_bytes, compression_alg);
     }
 };
+
+pub fn main() !void {
+    // z.B. Testausgabe
+    std.debug.print("Hello from grpc-client!\n", .{});
+}
