@@ -46,16 +46,16 @@ pub const Connection = struct {
         const id = self.next_stream_id;
         self.next_stream_id += 2;
 
-        var new_stream = try stream.Stream.init(id, self.allocator);
+        const new_stream = try stream.Stream.init(id, self.allocator);
         try self.streams.put(id, new_stream);
         return self.streams.getPtr(id).?;
     }
 
     pub fn sendHeaders(self: *Connection, stream_id: u31, headers: std.StringHashMap([]const u8)) !void {
-        var stream_ptr = self.streams.getPtr(stream_id) orelse return ConnectionError.StreamError;
-        
+        // var stream_ptr = self.streams.getPtr(stream_id) orelse return ConnectionError.StreamError;
+
         // Encode headers using HPACK
-        var encoded = try self.encoder.encode(headers);
+        const encoded = try self.encoder.encode(headers);
         defer self.allocator.free(encoded);
 
         // Create HEADERS frame
