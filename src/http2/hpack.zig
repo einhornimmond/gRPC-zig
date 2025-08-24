@@ -44,7 +44,7 @@ pub const Encoder = struct {
         try self.encodeString(buffer, value);
     }
 
-    fn encodeString(self: *Encoder, buffer: *std.ArrayList(u8), str: []const u8) !void {
+    fn encodeString(_: *Encoder, buffer: *std.ArrayList(u8), str: []const u8) !void {
         try buffer.append(@intCast(str.len));
         try buffer.appendSlice(str);
     }
@@ -84,14 +84,13 @@ pub const Decoder = struct {
     }
 
     fn decodeField(self: *Decoder, encoded: []const u8) !HeaderField {
-        _ = self;
         if (encoded[0] == 0x0) {
             // Literal header field
             const name_len = encoded[1];
-            const name = encoded[2..2+name_len];
-            const value_len = encoded[2+name_len];
-            const value = encoded[3+name_len..3+name_len+value_len];
-            
+            const name = encoded[2 .. 2 + name_len];
+            const value_len = encoded[2 + name_len];
+            const value = encoded[3 + name_len .. 3 + name_len + value_len];
+
             return HeaderField{
                 .name = try self.allocator.dupe(u8, name),
                 .value = try self.allocator.dupe(u8, value),

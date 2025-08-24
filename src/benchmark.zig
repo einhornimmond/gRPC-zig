@@ -86,15 +86,15 @@ const ClientWorker = struct {
         // Actual benchmark requests
         for (0..self.config.num_requests) |_| {
             const timer = Timer.start();
-            
+
             const response = client.call("Benchmark", payload, .none) catch |err| {
                 std.log.warn("Request failed: {}", .{err});
                 continue;
             };
-            
+
             const elapsed = timer.elapsed_ms();
             try self.results.append(elapsed);
-            
+
             self.allocator.free(response);
         }
     }
@@ -103,11 +103,11 @@ const ClientWorker = struct {
         const payload = try self.allocator.alloc(u8, self.config.request_size_bytes);
         var prng = std.rand.DefaultPrng.init(@as(u64, @intCast(std.time.milliTimestamp())));
         const random = prng.random();
-        
+
         for (payload) |*byte| {
             byte.* = random.int(u8);
         }
-        
+
         return payload;
     }
 };
@@ -162,7 +162,7 @@ fn runBenchmark(allocator: std.mem.Allocator, config: BenchmarkConfig) !Benchmar
 
     // Initialize workers
     for (0..config.concurrent_clients) |_| {
-        var worker = ClientWorker.init(allocator, config);
+        const worker = ClientWorker.init(allocator, config);
         try workers.append(worker);
     }
 
@@ -204,7 +204,7 @@ fn runBenchmark(allocator: std.mem.Allocator, config: BenchmarkConfig) !Benchmar
 fn outputResults(allocator: std.mem.Allocator, results: BenchmarkResults, format: enum { json, text }) !void {
     switch (format) {
         .json => {
-            const json_string = try json.stringifyAlloc(allocator, results, .{ .whitespace = .{.indent = .{.space = 2}} });
+            const json_string = try json.stringifyAlloc(allocator, results, .{ .whitespace = .{ .indent = .{ .space = 2 } } });
             defer allocator.free(json_string);
             std.log.info("Benchmark Results (JSON):\n{s}", .{json_string});
         },
